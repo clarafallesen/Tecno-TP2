@@ -20,13 +20,15 @@ String pantallas, tipoBola;
 
 PImage portada, perder, imgVidas, pantallaFondo;
 
-int vidas;
+int vidas, texto;
 
 float posy;
 
 Boolean removerBala = false;
 
 boolean yaPerdi = false;
+
+PFont fuente;
 
 void setup() {
 
@@ -37,14 +39,13 @@ void setup() {
   perder = loadImage("perdiste.jpg");
   imgVidas = loadImage("bola de lava.png");
 
-  fondo = new SoundFile (this, "cancion.mp3");
+  fondo = new SoundFile (this, "cancion3.mpeg");
   salto = new SoundFile( this, "salto.mp3");
   splash=new SoundFile (this, "agua.mp3");
   crack = new SoundFile (this, "hielo.mp3");
   llamas = new SoundFile ( this, "llamas.mp3");
   viento = new SoundFile (this, "viento.mp3");
   perdiste = new SoundFile (this, "perder.mp3");
-  fondo.loop();
   
   tuioClient = new TuioProcessing(this);
 
@@ -52,12 +53,15 @@ void setup() {
   mundo = new FWorld();
   mundo.setEdges(0, -200, width, height+200);
   
-  mundo.setGravity(0,300);
+  mundo.setGravity(0,700);
 
-  c1= new Canion( 15, height*0.75);
-  c2= new Canion( 770, height*0.75);
+  c1= new Canion( 15, height*0.8);
+  c2= new Canion( 770, height*0.8);
 
   vidas = 3;
+  texto = 0;
+  
+  fuente = loadFont("ArialRoundedMTBold-57.vlw");
   
   pantallaFondo = loadImage("fondo.jpg");
   posy = 0;
@@ -67,9 +71,9 @@ void setup() {
   plataformas = new Plataforma[p];
   for (int i = 0; i < p; i++) {
 
-    plataformas [i] = new Plataforma(175, 100);
-    float _x = (random(50, width-50));
-    float _y = (i * (height+100)/5 - 50);
+    plataformas [i] = new Plataforma(175, 81);
+    float _x = random(100, width-100);   //200*(i%4+1);
+    float _y = ( i * (height+400)/6);
     plataformas[i].inicializar(_x, _y, "hierro");
     mundo.add(plataformas[i]);
   }
@@ -77,21 +81,21 @@ void setup() {
   //----------------------Parte del personaje (bola) (por ahora de lava)----------------------
 
   bolaLava = new Personaje (75, "bola de lava" );
-  bolaLava.inicializar(width/2, height*0.60);
+  bolaLava.inicializar(width/2, height*0.4);
 
   //----------------------Plataformas que sacan vidas------------------------------
 
-  hielo = new Plataforma(175, 100);
-  agua = new Plataforma(175, 100);
-  lavaPiso = new Plataforma(175, 100);
+  hielo = new Plataforma(175, 81);
+  agua = new Plataforma(175, 81);
+  lavaPiso = new Plataforma(175, 81);
   mundo.add(hielo);
   mundo.add(agua);
   mundo.add(lavaPiso);
-  float _x = (random(150, width));
-  float _y = (random(100, height));
-  hielo.inicializar(_x, _y, "hielo");
-  agua.inicializar(_x, _y, "agua");
-  lavaPiso.inicializar(width/2, height*0.70, "lava");
+  float _x = (random(150, width-100));
+  float _y = (height)/10;
+  hielo.inicializar(_x/0.5, _y*int(random(1,3)), "hielo");
+  agua.inicializar(_x, _y*int(random(3,7)), "agua");
+  lavaPiso.inicializar(random(100,width), _y*int(random(1,5)), "lava");
 
   fondo.pause();
 }
@@ -113,7 +117,7 @@ void draw() {
     
   }
   //--------------------------Mover plataformas------------------
-
+  
   lavaPiso.mover();
   agua.mover();
   hielo.mover();
@@ -130,31 +134,24 @@ void draw() {
     
     pushStyle();
     imageMode(CENTER);
-    c1.dibujar("ventiladorc2.png",1);
-    c2.dibujar("ventiladorc2.png",2);
+    c1.dibujar(1);
+    c2.dibujar(2);
+    texto++;
+    println(texto);
     popStyle();
 
     if (vidas==3) {
 
-      image(imgVidas, 100, 10);
-      image(imgVidas, 175, 10);
-      image(imgVidas, 245, 10);
-      textSize(35);
-      fill(0);
-      text("X3", 50, 45);
+      image(imgVidas, 50, 10);
+      image(imgVidas, 125, 10);
+      image(imgVidas, 203, 10);
     } else if (vidas == 2) {
 
-      image(imgVidas, 100, 10);
-      image(imgVidas, 175, 10);
-      textSize(35);
-      fill(0);
-      text("X2", 50, 45);
+      image(imgVidas, 50, 10);
+      image(imgVidas, 125, 10);
     } else if (vidas == 1) {
 
-      image(imgVidas, 100, 10);
-      textSize(35);
-      fill(0);
-      text("X1", 50, 45);
+      image(imgVidas, 50, 10);
     }
   }
   if (vidas <=0) {
@@ -170,9 +167,13 @@ void draw() {
       yaPerdi=true;
     }
   }
- if (pantallas.equals("perdiste")) {
+ if (pantallas.equals("perdiste")&&(yaPerdi = true)) {
 
     image(perder, 0, 0);
+    textFont(fuente);
+    textAlign(CENTER, CENTER);
+    fill(0);
+    text("PUNTAJE   " + texto/50, width/2, height/2 - 100);
     fondo.pause();
     viento.pause();
   }
@@ -184,7 +185,6 @@ void draw() {
     pantallas = "perdiste";
     if(!yaPerdi){
       perdiste.play();
-      viento.play();
     yaPerdi=true;
     }
   }
@@ -205,25 +205,40 @@ void draw() {
   if(posy>height*2){
     posy = 0;
   }
-}
-
-void keyPressed() {
-
-  if (key==ENTER && pantallas.equals("perdiste")) {
-    pantallas = "portada";
-    vidas = 3;
-  }
-}
-
-void mousePressed() {
-
-  if (pantallas.equals("portada")) {
-    pantallas = "juego";
-   // viento.play();
-   // viento.loop();
-    //fondo.play();
-   // fondo.loop();
-    mundo.add(bolaLava);
+  ArrayList <TuioObject> listadoObjetosTuio = tuioClient.getTuioObjectList();
+    for (int i = 0; i <listadoObjetosTuio.size(); i++) {
+      TuioObject patronAux = listadoObjetosTuio.get(i);
+      ID = patronAux.getSymbolID();
+        if (pantallas.equals("portada") ){
+          if (ID == 2){
+          pantallas = "juego";
+          viento.play();
+          viento.loop();
+          fondo.play();
+          fondo.loop();
+          mundo.add(bolaLava);
+          bolaLava.setPosition(width/2, height*0.4);
+        }
+     }
+    
+    else if (pantallas.equals("perdiste")){
+       if(ID == 3){
+      pantallas = "portada";
+      vidas = 3;
+      yaPerdi= false;
+      if(bolaLava!=null){
+      if(!bolaLava.vivo){
+      bolaLava.reiniciar();
+      }
+      }
+      if(bolaPiedra!=null){
+      if(!bolaPiedra.vivo){
+      bolaPiedra.reiniciar();
+      }
+      }
+      texto=0;
+       }
+    }
   }
 }
 
@@ -254,7 +269,7 @@ void contactStarted(FContact contacto) {
   if ((_body1.getName() == "bola de lava" && _body2.getName() == "hielo")
     || (_body2.getName() == "bola de lava" && _body1.getName() == "hielo")) {
 
-    mundo.remove( hielo);
+    mundo.remove(hielo);
 
     if (bolaLava.vivo) {
 
@@ -279,24 +294,23 @@ void contactStarted(FContact contacto) {
 
     mundo.remove( hielo);
 
-    if (bolaLava.vivo) {
+    if (bolaPiedra.vivo) {
       crack.play();
     }
   }
   if ((_body1.getName() == "bola de piedra" && _body2.getName() == "agua")
     || (_body2.getName() == "bola de piedra" && _body1.getName() == "agua")) {
 
-    if (bolaLava.vivo) {
+    if (bolaPiedra.vivo) {
 
       splash.play();
-      vidas--;
      
     }
   }
   if ((_body1.getName() == "bola de piedra" && _body2.getName() == "lava")
     || (_body2.getName() == "bola de piedra" && _body1.getName() == "lava")) {
 
-    if (bolaLava.vivo) {
+    if (bolaPiedra.vivo) {
 
       llamas.play();
       bolaLava = new Personaje(75, "bola de lava");

@@ -53,15 +53,14 @@ class Plataforma extends FBox {
   void mover() { //cambia la posicion en Y de las plataformas manteniendo la X
 
     setPosition(getX(), getY()+velCaida);  //llamo a las posiciones y aumento 1 en Y por cada frame
-    println(getY());
 
-    if ( getY() > height + 100 ) {
+    if ( getY() > (height +200)) {
       reciclar();
     }
   }
 
   void reciclar() { //reinicia a las plataformas que se pasaron del borde inferior 
 
-    setPosition(random(width), -100);
+    setPosition (random(200, width-200), -200);
   }
 }

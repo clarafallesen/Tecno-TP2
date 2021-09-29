@@ -22,8 +22,9 @@ class Personaje extends FCircle {
       setDamping(-1);
       setRestitution(1);
       setFriction(0.7);
-      setRotatable(true);
+      setRotatable(false);
       setDensity(100000);
+      setStatic(false);
     
     }
     if(tipo.equals("bola de piedra")){
@@ -37,7 +38,7 @@ class Personaje extends FCircle {
       setDamping(-5);
       setRestitution(1);
       setFriction(1);
-      setDensity(10);
+      setDensity(200000);
       setRotatable(true);
     }
   }
@@ -45,5 +46,9 @@ class Personaje extends FCircle {
   void matar(){
     
     vivo=false;
+  }
+  
+  void reiniciar(){
+    vivo=true;
   }
 }
